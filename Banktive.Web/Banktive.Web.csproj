@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <Folder Include="Models\BillModel\" />
-    <Folder Include="Models\DestinationModel\" />
     <Folder Include="Models\WalletModel\" />
     <Folder Include="Models\TransferModel\" />
     <Folder Include="Models\SettingModel\" />
