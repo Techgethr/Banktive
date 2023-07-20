@@ -18,3 +18,16 @@ $(function () {
             .catch(err => console.log(err));
     });
 })
+
+async function generateFundAddress() {
+    const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233");
+    await client.connect()
+    const my_wallet = (await client.fundWallet()).wallet;
+    if (my_wallet != null) {
+        $('#Form_XRPLAddress').val(my_wallet.address);
+        $('#Form_XRPLSeed').val(my_wallet.seed);
+        $('#createWalletBtn').prop('disabled', 'false');
+    }
+    
+    client.disconnect();
+}

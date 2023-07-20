@@ -84,6 +84,23 @@ namespace Banktive.Web.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        public IActionResult Update(UpdateWalletFormModel Form)
+        {
+            UpdateWalletViewModel model = new UpdateWalletViewModel(_db, Form.Id);
+            if (model.Wallet == null || model.Wallet.UserId != User.Identity.Name)
+            {
+                model.Form = Form;
+                return View(model);
+            }
+            Wallet wallet = _db.Wallets.SingleOrDefault(x => x.Id == Form.Id);
+            wallet.Name = Form.Name;
+            wallet.Description = Form.Description;
+            _db.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
+
         public async Task<IActionResult> GetNativeBalance(long id)
         {
             Wallet wallet = _db.Wallets.SingleOrDefault(x => x.Id == id);
@@ -91,7 +108,7 @@ namespace Banktive.Web.Controllers
             {
                 return Json(null);
             }
-            var nativeBalance = await _XRPLService.GetNativeBalance("wss:", wallet.XRPLAddress.);
+            var nativeBalance = await _XRPLService.GetNativeBalance("wss://s.altnet.rippletest.net:51233", wallet.XRPLAddress);
             if (nativeBalance == null)
             {
                 return Json(null);

@@ -2,7 +2,10 @@
 using Xrpl.Client;
 using Xrpl.Client.Model;
 using Xrpl.Client.Model.Account;
+using Xrpl.Client.Model.Transaction;
+using Xrpl.Client.Model.Transaction.TransactionTypes;
 using Xrpl.Client.Requests.Account;
+using Xrpl.Client.Requests.Transaction;
 using Xrpl.Wallet;
 
 namespace Banktive.Web.Services
@@ -56,8 +59,61 @@ namespace Banktive.Web.Services
             {
 
             }
-            Disconnect();
+            finally
+            {
+                Disconnect();
+            }
             return nativeBalance;
+        }
+
+        public async Task<NativePaymentResult> CreatePayment(string url, string addressTo, decimal amount, string addressFrom, string seedFrom)
+        {
+            NativePaymentResult isCreated = new NativePaymentResult { Successful = false };
+            try
+            {
+                Connect(url);
+
+                AccountInfoRequest request = new AccountInfoRequest(addressFrom);
+                AccountInfo accountInfo = await _rippleClient.AccountInfo(request);
+
+                PaymentTransaction paymentTransaction = new PaymentTransaction
+                {
+                    TransactionType = TransactionType.Payment,
+                    Destination = addressTo,
+                    Amount = new Currency { ValueAsXrp = amount },
+                    Account = addressFrom,
+                    Sequence = accountInfo.AccountData.Sequence
+                };
+                isCreated.AmountDelivered = paymentTransaction.Amount.ValueAsXrp;
+                isCreated.AmountSent = paymentTransaction.Amount.ValueAsXrp;
+                isCreated.OriginalAmount = paymentTransaction.Amount.ValueAsXrp;
+                
+                TxSigner txSigner = TxSigner.FromSecret(seedFrom);
+                var jsonSigned = txSigner.SignJson(Newtonsoft.Json.Linq.JObject.Parse(paymentTransaction.ToJson()));
+                string txBlob = jsonSigned.TxBlob;
+                SubmitBlobRequest requestFund = new SubmitBlobRequest();
+                requestFund.TransactionBlob = txBlob;
+
+                Submit submit = await _rippleClient.SubmitTransactionBlob(requestFund);
+                if (submit.EngineResult == "tesSUCCESS")
+                {
+                    if(submit.Transaction != null && submit.Transaction.Fee != null)
+                    {
+                        isCreated.FeeAmount = submit.Transaction.Fee.ValueAsXrp;
+                    }
+                    isCreated.Successful = true;
+                }
+            }
+            catch
+            {
+                isCreated.Successful = false;
+            }
+            finally
+            {
+                Disconnect();
+            }
+            
+            return isCreated;
         }
     }
 }
