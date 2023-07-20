@@ -21,6 +21,10 @@ namespace Banktive.Web.Controllers
         public IActionResult Index()
         {
             IndexWalletViewModel model = new IndexWalletViewModel(_db, User.Identity.Name);
+            if(model.Profile == null)
+            {
+                return RedirectToAction("Index", "Setting");
+            }
             return View(model);
         }
 

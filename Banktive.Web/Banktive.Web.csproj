@@ -24,7 +24,6 @@
   <ItemGroup>
     <Folder Include="Models\BillModel\" />
     <Folder Include="Models\TransferModel\" />
-    <Folder Include="Models\SettingModel\" />
     <Folder Include="Models\ServiceModel\" />
     <Folder Include="Models\PaymentModel\" />
   </ItemGroup>

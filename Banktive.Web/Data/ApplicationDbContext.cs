@@ -7,6 +7,8 @@ namespace Banktive.Web.Data
     {
         public DbSet<Destination> Destinations { get; set; }
         public DbSet<Currency> Currencies { get; set; }
+        public DbSet<Country> Countries { get; set; }
+        public DbSet<Profile> Profiles { get; set; }
         public DbSet<Wallet> Wallets { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
