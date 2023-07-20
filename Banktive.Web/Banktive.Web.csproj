@@ -18,11 +18,11 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.15" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="xrpl.c" Version="1.0.6" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Models\BillModel\" />
-    <Folder Include="Models\WalletModel\" />
     <Folder Include="Models\TransferModel\" />
     <Folder Include="Models\SettingModel\" />
     <Folder Include="Models\ServiceModel\" />
