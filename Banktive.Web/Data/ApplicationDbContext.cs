@@ -13,6 +13,9 @@ namespace Banktive.Web.Data
         public DbSet<PaymentStatus> PaymentStatus { get; set; }
         public DbSet<PaymentType> PaymentTypes { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<CheckStatus> CheckStatus { get; set; }
+        public DbSet<Check> Checks { get; set; }
+        public DbSet<CreditWallet> CreditWallets { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

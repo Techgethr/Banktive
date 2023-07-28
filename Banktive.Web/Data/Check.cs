@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Banktive.Web.Data
 {
-    public class Payment
+    public class Check
     {
         [Required]
         public Guid Id { get; set; }
@@ -17,11 +17,6 @@ namespace Banktive.Web.Data
         [Required]
         public int CurrencyId { get; set; }
 
-        [Required]
-        public int PaymentStatusId { get; set; }
-
-        [Required]
-        public int PaymentTypeId { get; set; }
 
         [Required]
         [MaxLength(200), MinLength(1)]
@@ -37,22 +32,24 @@ namespace Banktive.Web.Data
         [Required]
         public DateTime CreatedAt { get; set; }
 
-        public DateTime? ConfirmationAt { get; set; }
+        [Required]
+        public DateTime DateToCash { get; set; }
+
+        public DateTime? CashedAt { get; set; }
 
         [Required]
         public string? UserId { get; set; }
 
+        public string? CheckXRPLId { get; set; }
+
+        public long? LedgerSequence { get; set; }
+
+        [Required]
+        public int CheckStatusId { get; set; }
+
         [Required]
         [ForeignKey("CurrencyId")]
         public Currency Currency { get; set; }
-
-        [Required]
-        [ForeignKey("PaymentTypeId")]
-        public PaymentType PaymentType { get; set; }
-
-        [Required]
-        [ForeignKey("PaymentStatusId")]
-        public PaymentStatus PaymentStatus { get; set; }
 
 
         [Required]
@@ -61,5 +58,9 @@ namespace Banktive.Web.Data
 
         [ForeignKey("DestinationId")]
         public Destination? Destination { get; set; }
+
+        [Required]
+        [ForeignKey("CheckStatusId")]
+        public CheckStatus CheckStatus { get; set; }
     }
 }

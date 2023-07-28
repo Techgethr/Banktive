@@ -31,3 +31,154 @@ async function generateFundAddress() {
     
     client.disconnect();
 }
+
+async function sendDeferredPayment(seedCode, assetCode, amount, destinationAddress) {
+    $('.waitingPayment').css('display', 'block');
+    $('.approveCheckBtn').prop("disabled", true);
+    $('.rejectCheckBtn').prop("disabled", true);
+    try {
+        const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233/");
+        await client.connect()
+        if (seedCode != null) {
+            const originWallet = xrpl.Wallet.fromSeed(seedCode);
+            $('.errorPayment').css('display', 'none');
+            $('.errorWallet').css('display', 'none');
+            $('.successPayment').css('display', 'none');
+
+            const prepared = await client.autofill({
+                "TransactionType": "CheckCreate",
+                "Account": originWallet.address,
+                "SendMax": assetCode == 'XRP' ? xrpl.xrpToDrops(amount) : {
+                    "currency": assetCode,
+                    "value": amount,
+                    "issuer": destinationAddress
+                },
+                "Destination": destinationAddress
+            });
+            const signed = originWallet.sign(prepared);
+            const tx = await client.submitAndWait(signed.tx_blob);
+            if (tx.result != null && tx.result.meta != null && tx.result.meta.TransactionResult != null
+                && tx.result.meta.TransactionResult == "tesSUCCESS") {
+                var checkCreated = tx.result.meta.AffectedNodes.filter(x => x.CreatedNode != null && x.CreatedNode.LedgerEntryType == 'Check');
+                if (checkCreated.length == 1) {
+                    $('#successfulPayment').val(true);
+                    $('#Form_CheckXRPLId').val(checkCreated[0].CreatedNode.LedgerIndex);
+                    $('.errorPayment').css('display', 'none');
+                    $('.errorWallet').css('display', 'none');
+                    $('.successPayment').css('display', 'block');
+                    $('.waitingPayment').css('display', 'none');
+                    $('.approveCheckBtn').prop("disabled", false);
+                    $('.rejectCheckBtn').prop("disabled", false);
+
+                    $('#deferredPaymentForm').submit();
+                }
+                else {
+                    $('#successfulPayment').val(false);
+                    $('.errorPayment').css('display', 'block');
+                    $('.errorWallet').css('display', 'none');
+                    $('.successPayment').css('display', 'none');
+                    $('.waitingPayment').css('display', 'none');
+                    $('.approveCheckBtn').prop("disabled", false);
+                    $('.rejectCheckBtn').prop("disabled", false);
+                }
+            }
+            else {
+                $('#successfulPayment').val(false);
+                $('.errorPayment').css('display', 'block');
+                $('.errorWallet').css('display', 'none');
+                $('.successPayment').css('display', 'none');
+                $('.waitingPayment').css('display', 'none');
+                $('.approveCheckBtn').prop("disabled", false);
+                $('.rejectCheckBtn').prop("disabled", false);
+            }
+            client.disconnect();
+        }
+        else {
+            $('.errorPayment').css('display', 'none');
+            $('.errorWallet').css('display', 'block');
+            $('.successPayment').css('display', 'none');
+            $('.waitingPayment').css('display', 'none');
+            $('.approveCheckBtn').prop("disabled", false);
+            $('.rejectCheckBtn').prop("disabled", false);
+        }
+
+    }
+    catch (err) {
+        $('.errorPayment').css('display', 'block');
+        $('.errorWallet').css('display', 'none');
+        $('.successPayment').css('display', 'none');
+        $('.waitingPayment').css('display', 'none');
+        $('.approveCheckBtn').prop("disabled", false);
+        $('.rejectCheckBtn').prop("disabled", false);
+    }
+}
+
+
+
+async function cashMoneyFromPayment(originAddress, seed, assetCode, amount, checkId) {
+    $('.errorPayment').css('display', 'none');
+    $('.errorWallet').css('display', 'none');
+    $('.successPayment').css('display', 'none');
+    $('.waitingPayment').css('display', 'block');
+    $('.btnRedeem').prop("disabled", true);
+    try {
+        const originWallet = xrpl.Wallet.fromSeed(seed);
+        if (originWallet == null || originWallet.address != originAddress) {
+            $('.errorPayment').css('display', 'none');
+            $('.errorWallet').css('display', 'block');
+            $('.successPayment').css('display', 'none');
+            $('.waitingPayment').css('display', 'none');
+            $('.btnRedeem').prop("disabled", false);
+        }
+        else {
+            $('.errorPayment').css('display', 'none');
+            $('.errorWallet').css('display', 'none');
+            $('.successPayment').css('display', 'none');
+            $('.waitingPayment').css('display', 'block');
+            $('.btnRedeem').prop("disabled", false);
+            const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233/");
+            await client.connect()
+            const prepared = await client.autofill({
+                "TransactionType": "CheckCash",
+                "Account": originWallet.address,
+                "Amount": assetCode == 'XRP' ? xrpl.xrpToDrops(amount) : {
+                    "currency": assetCode,
+                    "value": amount,
+                    "issuer": originWallet.address
+                },
+                "CheckID": checkId
+            });
+            const signed = originWallet.sign(prepared);
+            const tx = await client.submitAndWait(signed.tx_blob);
+            if (tx.result != null && tx.result.meta != null && tx.result.meta.TransactionResult != null
+                && tx.result.meta.TransactionResult == "tesSUCCESS" && tx.result.validated == true) {
+                $('#successfulPayment').val(true);
+                $('.errorPayment').css('display', 'none');
+                $('.errorWallet').css('display', 'none');
+                $('.successPayment').css('display', 'block');
+                $('.waitingPayment').css('display', 'none');
+                //$('.btnRedeem').prop("disabled", false);
+                $('#cashPaymentForm').submit();
+            }
+            else {
+                $('#successfulPayment').val(false);
+                $('.errorPayment').css('display', 'block');
+                $('.errorWallet').css('display', 'none');
+                $('.successPayment').css('display', 'none');
+                $('.waitingPayment').css('display', 'none');
+                $('.btnRedeem').prop("disabled", false);
+            }
+
+
+            client.disconnect();
+        }
+    }
+    catch (err) {
+        $('.errorPayment').css('display', 'block');
+        $('.errorWallet').css('display', 'none');
+        $('.successPayment').css('display', 'none');
+        $('.waitingPayment').css('display', 'none');
+        $('.btnRedeem').prop("disabled", false);
+        console.error(err);
+    }
+}

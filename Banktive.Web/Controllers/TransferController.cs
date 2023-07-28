@@ -20,7 +20,7 @@ namespace Banktive.Web.Controllers
         public IActionResult Index(long? wallet, int? month, int? year, int page = 1, int qty = 20)
         {
             IndexTransferViewModel model = new IndexTransferViewModel(_db, User.Identity.Name);
-            IEnumerable<TransferDTO> payments = _db.Payments.Include(x => x.Wallet).Include(x => x.Currency).Where(x => x.UserId == User.Identity.Name && (x.PaymentStatusId == Constants.PaymentRejected || x.PaymentStatusId == Constants.PaymentConfirmed))
+            IEnumerable<TransferDTO> payments = _db.Payments.Include(x => x.Wallet).Include(x => x.Currency).Where(x => x.UserId == User.Identity.Name && (x.PaymentStatusId == Constants.PaymentConfirmed))
                 .Select(x => new TransferDTO
                 {
                     Amount = x.Amount,
@@ -34,7 +34,7 @@ namespace Banktive.Web.Controllers
                     IsSend = true
                 });
             var myWalletAddresses = _db.Wallets.Include("WalletProvider").Where(x => x.UserId == User.Identity.Name).Select(x => x.Alias);
-            var filterTransferForWallets = _db.Payments.Where(x => myWalletAddresses.Any(y => y == x.Destination.Account)).Select(x => new TransferDTO
+            var filterTransferForWallets = _db.Payments.Where(x => myWalletAddresses.Any(y => y == x.Destination.Account) && x.PaymentStatusId == Constants.PaymentConfirmed).Select(x => new TransferDTO
             {
                 Amount = x.Amount,
                 AssetCode = x.Currency.Code,

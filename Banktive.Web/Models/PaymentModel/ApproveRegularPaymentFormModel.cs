@@ -10,6 +10,6 @@ namespace Banktive.Web.Models.PaymentModel
         [Required]
         public string? Password { get; set; }
 
-        public string Cancelled { get; set; }
+        public string? Cancelled { get; set; }
     }
 }

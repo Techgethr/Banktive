@@ -96,7 +96,7 @@ namespace Banktive.Web.Controllers
             if (!string.IsNullOrEmpty(Form.Password))
             {
                 var passwordValidator = new PasswordValidator<IdentityUser>();
-                var result = await passwordValidator.ValidateAsync(_userManager, null, "your password here");
+                var result = await passwordValidator.ValidateAsync(_userManager, new IdentityUser(User.Identity.Name), Form.Password);
 
                 if (result.Succeeded)
                 {

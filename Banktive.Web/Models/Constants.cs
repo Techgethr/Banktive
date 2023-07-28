@@ -13,5 +13,12 @@
 
         //Types
         public const int RegularPayment = 1;
+        public const int CheckPayment = 2;
+
+        // Check status
+        public const int CheckCreated = 1;
+        public const int CheckCancelled = 2;
+        public const int CheckConfirmed = 3;
+        public const int CheckCashed = 4;
     }
 }
