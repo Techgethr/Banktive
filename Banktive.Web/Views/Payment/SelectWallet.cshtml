@@ -24,7 +24,7 @@
         {
             <section class="col-4 col-12-narrower">
                 <header>
-                    <h3>@Html.ActionLink("Select", "Send", "Payment", new { id = address.Id }, new { @class = "loadingButton" })</h3>
+                    <h3>@Html.ActionLink(address.Name, "Send", "Payment", new { id = address.Id }, new { @class = "loadingButton" })</h3>
                 </header>
                 <p>
                     Balance:

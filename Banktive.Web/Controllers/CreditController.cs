@@ -21,8 +21,8 @@ namespace Banktive.Web.Controllers
         public IActionResult Index(long? wallet, int? month, int? year, int page = 1, int qty = 20)
         {
             IndexCreditViewModel model = new IndexCreditViewModel(_db, User.Identity.Name);
-            IEnumerable<TransferDTO> checks = _db.Checks.Include(x => x.Wallet).Include(x => x.Currency).Where(x => x.UserId == User.Identity.Name && (x.CheckStatusId == Constants.CheckConfirmed || x.CheckStatusId == Constants.CheckCashed))
-                .Select(x => new TransferDTO
+            IEnumerable<CreditDTO> checks = _db.Checks.Include(x => x.Wallet).Include(x => x.Currency).Where(x => x.UserId == User.Identity.Name && (x.CheckStatusId == Constants.CheckConfirmed || x.CheckStatusId == Constants.CheckCashed))
+                .Select(x => new CreditDTO
                 {
                     Amount = x.Amount,
                     AssetCode = x.Currency.Code,
@@ -33,10 +33,10 @@ namespace Banktive.Web.Controllers
                     Wallet = x.Wallet.Name,
                     WalletId = x.OriginWalletId,
                     OriginAddress = x.Wallet.Alias,
-                    IsSend = true
+                    IsSend = true, DateToCash = x.DateToCash
                 });
             var myWalletAddresses = _db.Wallets.Include("WalletProvider").Where(x => x.UserId == User.Identity.Name).Select(x => x.Alias);
-            var filterTransferForWallets = _db.Checks.Where(x => myWalletAddresses.Any(y => y == x.Destination.Account) && (x.CheckStatusId == Constants.CheckConfirmed || x.CheckStatusId == Constants.CheckCashed)).Select(x => new TransferDTO
+            var filterTransferForWallets = _db.Checks.Where(x => myWalletAddresses.Any(y => y == x.Destination.Account) && (x.CheckStatusId == Constants.CheckConfirmed || x.CheckStatusId == Constants.CheckCashed)).Select(x => new CreditDTO
             {
                 Amount = x.Amount,
                 AssetCode = x.Currency.Code,
@@ -47,7 +47,8 @@ namespace Banktive.Web.Controllers
                 Wallet = x.Wallet.Name,
                 WalletId = x.OriginWalletId,
                 OriginAddress = x.Wallet.Alias,
-                IsSend = false
+                IsSend = false,
+                DateToCash = x.DateToCash
             });
             checks = checks.Concat(filterTransferForWallets);
             if (wallet.HasValue)
@@ -93,7 +94,7 @@ namespace Banktive.Web.Controllers
                     CreatedAt = DateTime.UtcNow,
                     Enabled = true,
                     UsedAmount = 0,
-                    TotalAmount = 10000
+                    TotalAmount = 10000, UserId = User.Identity.Name
                 };
                 _db.CreditWallets.Add(creditWallet);
             }
@@ -218,10 +219,10 @@ namespace Banktive.Web.Controllers
         public IActionResult ViewCheck(Guid id)
         {
             ViewCheckViewModel model = new ViewCheckViewModel(_db, id);
-            if (model.Check == null || model.Check.UserId != User.Identity.Name)
-            {
-                return RedirectToAction("Index");
-            }
+            //if (model.Check == null || model.Check.UserId != User.Identity.Name)
+            //{
+            //    return RedirectToAction("Index");
+            //}
             return View(model);
         }
 
@@ -245,7 +246,12 @@ namespace Banktive.Web.Controllers
                 OriginWalletId = check.OriginWalletId,
                 UserId = User.Identity.Name, ConfirmationAt = DateTime.UtcNow, Fee = check.Fee
             };
+
             _db.Payments.Add(payment);
+
+            CreditWallet creditWallet = _db.CreditWallets.SingleOrDefault(x => x.Id == check.OriginWalletId);
+            creditWallet.UsedAmount -= check.Amount;
+
             _db.SaveChanges();
             return RedirectToAction("ViewCheck", new { id });
         }

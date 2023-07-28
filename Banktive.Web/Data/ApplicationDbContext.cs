@@ -16,6 +16,11 @@ namespace Banktive.Web.Data
         public DbSet<CheckStatus> CheckStatus { get; set; }
         public DbSet<Check> Checks { get; set; }
         public DbSet<CreditWallet> CreditWallets { get; set; }
+        public DbSet<ServiceType> ServiceTypes { get; set; }
+        public DbSet<Service> Services { get; set; }
+        public DbSet<ServiceAccount> ServiceAccounts { get; set; }
+        public DbSet<ServiceAccountDetail> ServiceAccountDetails { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

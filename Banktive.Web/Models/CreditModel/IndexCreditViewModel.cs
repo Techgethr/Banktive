@@ -6,7 +6,7 @@ namespace Banktive.Web.Models.CreditModel
     public class IndexCreditViewModel
     {
         public int Page { get; set; }
-        public IEnumerable<TransferDTO> Checks { get; set; }
+        public IEnumerable<CreditDTO> Checks { get; set; }
         public IEnumerable<SelectListItem> Months { get; set; }
         public IEnumerable<SelectListItem> Years { get; set; }
         public IEnumerable<SelectListItem> Wallets { get; set; }

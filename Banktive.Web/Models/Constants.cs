@@ -14,6 +14,7 @@
         //Types
         public const int RegularPayment = 1;
         public const int CheckPayment = 2;
+        public const int ServicePayment = 3;
 
         // Check status
         public const int CheckCreated = 1;

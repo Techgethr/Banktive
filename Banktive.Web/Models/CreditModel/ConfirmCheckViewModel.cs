@@ -10,7 +10,7 @@ namespace Banktive.Web.Models.CreditModel
 
         public ConfirmCheckViewModel(ApplicationDbContext db, Guid id)
         {
-            Check = db.Checks.Include(x => x.Currency).Include(x => x.Destination)
+            Check = db.Checks.Include(x => x.Wallet).Include(x => x.Currency).Include(x => x.Destination)
                 .Include(x => x.CheckStatus).SingleOrDefault(x => x.Id == id);
             Form = new ConfirmCheckFormModel {  Id = id };
         }

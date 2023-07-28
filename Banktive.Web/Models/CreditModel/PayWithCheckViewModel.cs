@@ -14,6 +14,7 @@ namespace Banktive.Web.Models.CreditModel
             Wallet = db.Wallets.SingleOrDefault(x => x.Id == id);
             Destinations = db.Destinations.Where(x => x.UserId == name).OrderBy(x => x.Name)
                 .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() });
+            Form = new PayWithCheckFormModel { OriginWalletId = id.Value };
         }
 
         

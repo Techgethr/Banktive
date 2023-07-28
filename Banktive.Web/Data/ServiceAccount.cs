@@ -3,28 +3,24 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Banktive.Web.Data
 {
-    public class CreditWallet
+    public class ServiceAccount
     {
         [Required]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
         [Required]
-        public decimal TotalAmount { get; set; }
-
-        [Required]
-        public decimal UsedAmount { get; set; }
-
-        [Required]
-        public bool Enabled { get; set; }
+        [MaxLength(100), MinLength(1)]
+        public string? CustomerId { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }
 
         [Required]
-        public string? UserId { get; set; }
+        public long ServiceId { get; set; }
 
         [Required]
-        [ForeignKey("Id")]
-        public Wallet Wallet { get; set; }
+        [ForeignKey("ServiceId")]
+        public Service Service { get; set; }
     }
 }

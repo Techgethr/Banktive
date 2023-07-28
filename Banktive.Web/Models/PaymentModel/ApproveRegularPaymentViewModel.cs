@@ -11,7 +11,7 @@ namespace Banktive.Web.Models.PaymentModel
         public ApproveRegularPaymentViewModel(ApplicationDbContext db, Guid id)
         {
             Form = new ApproveRegularPaymentFormModel {  PaymentId = id };
-            Payment = db.Payments.Include(x => x.Currency).Include(x => x.Destination)
+            Payment = db.Payments.Include(x => x.Wallet).Include(x => x.Currency).Include(x => x.Destination)
                 .Include(x => x.PaymentStatus).Include(x => x.PaymentType).SingleOrDefault(x => x.Id == id);
         }
     }
