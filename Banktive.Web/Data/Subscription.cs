@@ -23,6 +23,9 @@ namespace Banktive.Web.Data
         public DateTime CreatedAt { get; set; }
 
         [Required]
+        public string UserId { get; set; }
+
+        [Required]
         public int ServiceTypeId { get; set; }
 
         [Required]

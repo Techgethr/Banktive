@@ -1,16 +1,16 @@
 ﻿using Banktive.Web.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Banktive.Web.Models.ServiceModel
 {
     public class MySubscriptionsViewModel
     {
-        private ApplicationDbContext db;
-        private string? name;
+        public IEnumerable<Subscription> Subscriptions { get; set; }
 
-        public MySubscriptionsViewModel(ApplicationDbContext db, string? name)
+        public MySubscriptionsViewModel(ApplicationDbContext db, string userName)
         {
-            this.db = db;
-            this.name = name;
+            Subscriptions = db.Subscriptions.Include(x => x.ServiceType).Where(x => x.UserId == userName)
+                .OrderBy(x => x.ServiceName);
         }
     }
 }

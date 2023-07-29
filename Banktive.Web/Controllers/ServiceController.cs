@@ -84,6 +84,14 @@ namespace Banktive.Web.Controllers
         public IActionResult ServiceAccounts(ServiceAccountsFormModel Form)
         {
             ServiceAccountsViewModel model = new ServiceAccountsViewModel(_db, Form.Id);
+            if(!string.IsNullOrEmpty(Form.CustomerId))
+            {
+                bool exists = _db.ServiceAccounts.Any(x => x.ServiceId == Form.Id && x.CustomerId == Form.CustomerId);
+                if(exists)
+                {
+                    ModelState.AddModelError("Form.CustomerId", "This account already exists.");
+                }
+            }
             if (!ModelState.IsValid)
             {
                 model.Form = Form;
@@ -161,7 +169,8 @@ namespace Banktive.Web.Controllers
             Subscription subscription = new Subscription
             {
                  CreatedAt = DateTime.UtcNow, CustomerId = Form.CustomerId, Id = Guid.NewGuid(),
-                 ServiceId = Form.ServiceId.Value, ServiceName = Form.ServiceName, ServiceTypeId = Form.ServiceTypeId.Value
+                 ServiceId = Form.ServiceId.Value, ServiceName = Form.ServiceName, ServiceTypeId = Form.ServiceTypeId.Value,
+                 UserId = User.Identity.Name
             };
             _db.Subscriptions.Add(subscription);
             _db.SaveChanges();
