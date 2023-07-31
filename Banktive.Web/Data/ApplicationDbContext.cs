@@ -21,6 +21,9 @@ namespace Banktive.Web.Data
         public DbSet<ServiceAccount> ServiceAccounts { get; set; }
         public DbSet<ServiceAccountDetail> ServiceAccountDetails { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<DepositStatus> DepositStatus { get; set; }
+        public DbSet<DepositType> DepositTypes { get; set; }
+        public DbSet<Deposit> Deposits { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

@@ -115,5 +115,165 @@ namespace Banktive.Web.Services
             
             return isCreated;
         }
+
+        public async Task<XRPLCreateEscrowResult> CreateEscrow(string url, string addressTo, decimal amount, string addressFrom, string seedFrom, DateTime dateToPay)
+        {
+            XRPLCreateEscrowResult escrowResult = new XRPLCreateEscrowResult { Successful = false };
+            try
+            {
+                Connect(url);
+
+                AccountInfoRequest request = new AccountInfoRequest(addressFrom);
+                AccountInfo accountInfo = await _rippleClient.AccountInfo(request);
+
+                long unitDate = (long)(dateToPay - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+
+                uint release_date_ripple = (uint)(unitDate - 946684800);
+
+                PaymentTransaction paymentTransaction = new PaymentTransaction
+                {
+                    TransactionType = TransactionType.EscrowCreate,
+                    Destination = addressTo,
+                    Amount = new Currency { ValueAsXrp = amount },
+                    Account = addressFrom,
+                    date = release_date_ripple
+                    //Sequence = accountInfo.AccountData.Sequence
+                };
+                escrowResult.AmountDelivered = paymentTransaction.Amount.ValueAsXrp;
+                escrowResult.AmountSent = paymentTransaction.Amount.ValueAsXrp;
+                escrowResult.OriginalAmount = paymentTransaction.Amount.ValueAsXrp;
+
+                TxSigner txSigner = TxSigner.FromSecret(seedFrom);
+                var jsonSigned = txSigner.SignJson(Newtonsoft.Json.Linq.JObject.Parse(paymentTransaction.ToJson()));
+                string txBlob = jsonSigned.TxBlob;
+                SubmitBlobRequest requestFund = new SubmitBlobRequest();
+                requestFund.TransactionBlob = txBlob;
+
+                Submit submit = await _rippleClient.SubmitTransactionBlob(requestFund);
+                if (submit.EngineResult == "tesSUCCESS")
+                {
+                    if (submit.Transaction != null && submit.Transaction.Hash != null)
+                    {
+                        escrowResult.FeeAmount = submit.Transaction.Fee.ValueAsXrp;
+                        escrowResult.Sequence = submit.Transaction.Sequence;
+                        escrowResult.Hash = submit.Transaction.Hash;
+                    }
+                    escrowResult.Successful = true;
+                }
+            }
+            catch
+            {
+                escrowResult.Successful = false;
+            }
+            finally
+            {
+                Disconnect();
+            }
+            return escrowResult;
+        }
+
+        public async Task<XRPLCreateEscrowResult> FinishEscrow(string url, string addressFrom, string seedFrom, uint offerSequence)
+        {
+            XRPLCreateEscrowResult escrowResult = new XRPLCreateEscrowResult { Successful = false };
+            try
+            {
+                Connect(url);
+
+                AccountInfoRequest request = new AccountInfoRequest(addressFrom);
+                AccountInfo accountInfo = await _rippleClient.AccountInfo(request);
+
+
+                PaymentTransaction paymentTransaction = new PaymentTransaction
+                {
+                    TransactionType = TransactionType.EscrowFinish,
+                    Destination = addressFrom,
+                    Account = addressFrom,
+                    Sequence = offerSequence
+                    //Sequence = accountInfo.AccountData.Sequence
+                };
+                escrowResult.AmountDelivered = paymentTransaction.Amount.ValueAsXrp;
+                escrowResult.AmountSent = paymentTransaction.Amount.ValueAsXrp;
+                escrowResult.OriginalAmount = paymentTransaction.Amount.ValueAsXrp;
+
+                TxSigner txSigner = TxSigner.FromSecret(seedFrom);
+                var jsonSigned = txSigner.SignJson(Newtonsoft.Json.Linq.JObject.Parse(paymentTransaction.ToJson()));
+                string txBlob = jsonSigned.TxBlob;
+                SubmitBlobRequest requestFund = new SubmitBlobRequest();
+                requestFund.TransactionBlob = txBlob;
+
+                Submit submit = await _rippleClient.SubmitTransactionBlob(requestFund);
+                if (submit.EngineResult == "tesSUCCESS")
+                {
+                    if (submit.Transaction != null && submit.Transaction.Hash != null)
+                    {
+                        escrowResult.FeeAmount = submit.Transaction.Fee.ValueAsXrp;
+                        escrowResult.Sequence = submit.Transaction.Sequence;
+                        escrowResult.Hash = submit.Transaction.Hash;
+                    }
+                    escrowResult.Successful = true;
+                }
+            }
+            catch
+            {
+                escrowResult.Successful = false;
+            }
+            finally
+            {
+                Disconnect();
+            }
+            return escrowResult;
+        }
+
+        public async Task<XRPLCreateEscrowResult> CancelEscrow(string url, string addressFrom, string seedFrom, uint offerSequence)
+        {
+            XRPLCreateEscrowResult escrowResult = new XRPLCreateEscrowResult { Successful = false };
+            try
+            {
+                Connect(url);
+
+                AccountInfoRequest request = new AccountInfoRequest(addressFrom);
+                AccountInfo accountInfo = await _rippleClient.AccountInfo(request);
+
+
+                PaymentTransaction paymentTransaction = new PaymentTransaction
+                {
+                    TransactionType = TransactionType.EscrowCancel,
+                    Destination = addressFrom,
+                    Account = addressFrom,
+                    Sequence = offerSequence
+                    //Sequence = accountInfo.AccountData.Sequence
+                };
+                escrowResult.AmountDelivered = paymentTransaction.Amount.ValueAsXrp;
+                escrowResult.AmountSent = paymentTransaction.Amount.ValueAsXrp;
+                escrowResult.OriginalAmount = paymentTransaction.Amount.ValueAsXrp;
+
+                TxSigner txSigner = TxSigner.FromSecret(seedFrom);
+                var jsonSigned = txSigner.SignJson(Newtonsoft.Json.Linq.JObject.Parse(paymentTransaction.ToJson()));
+                string txBlob = jsonSigned.TxBlob;
+                SubmitBlobRequest requestFund = new SubmitBlobRequest();
+                requestFund.TransactionBlob = txBlob;
+
+                Submit submit = await _rippleClient.SubmitTransactionBlob(requestFund);
+                if (submit.EngineResult == "tesSUCCESS")
+                {
+                    if (submit.Transaction != null && submit.Transaction.Hash != null)
+                    {
+                        escrowResult.FeeAmount = submit.Transaction.Fee.ValueAsXrp;
+                        escrowResult.Sequence = submit.Transaction.Sequence;
+                        escrowResult.Hash = submit.Transaction.Hash;
+                    }
+                    escrowResult.Successful = true;
+                }
+            }
+            catch
+            {
+                escrowResult.Successful = false;
+            }
+            finally
+            {
+                Disconnect();
+            }
+            return escrowResult;
+        }
     }
 }

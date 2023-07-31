@@ -182,3 +182,136 @@ async function cashMoneyFromPayment(originAddress, seed, assetCode, amount, chec
         console.error(err);
     }
 }
+
+
+async function createEscrow(seedCode, amount, destinationAddress, dateFinish) {
+    $('.errorPayment').css('display', 'none');
+    $('.errorWallet').css('display', 'none');
+    $('.successPayment').css('display', 'none');
+    $('.waitingPayment').css('display', 'block');
+    $('.approveEscrowBtn').prop("disabled", true);
+    $('.rejectEscrowBtn').prop("disabled", true);
+    try {
+        const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233/");
+        await client.connect()
+        if (seedCode != null) {
+            const originWallet = xrpl.Wallet.fromSeed(seedCode);
+
+            const release_date_ripple = dateFinish - 946684800;
+
+            const prepared = await client.autofill({
+                "TransactionType": "EscrowCreate",
+                "Account": originWallet.address,
+                "Amount": xrpl.xrpToDrops(amount),
+                "Destination": destinationAddress,
+                "FinishAfter": release_date_ripple
+            });
+            const signed = originWallet.sign(prepared);
+            const tx = await client.submitAndWait(signed.tx_blob);
+            if (tx.result != null && tx.result.hash != null) {
+                $('#successfulPayment').val(true);
+                $('#checkId').val(tx.result.hash);
+                $('#ledgerSequence').val(tx.result.Sequence);
+                $('.errorPayment').css('display', 'none');
+                $('.errorWallet').css('display', 'none');
+                $('.successPayment').css('display', 'block');
+                $('.waitingPayment').css('display', 'none');
+                $('.approveEscrowBtn').prop("disabled", false);
+                $('.rejectEscrowBtn').prop("disabled", false);
+                $('#deferredPaymentForm').submit();
+            }
+            else {
+                $('#successfulPayment').val(false);
+                $('.errorPayment').css('display', 'block');
+                $('.errorWallet').css('display', 'none');
+                $('.successPayment').css('display', 'none');
+                $('.waitingPayment').css('display', 'none');
+                $('.approveEscrowBtn').prop("disabled", false);
+                $('.rejectEscrowBtn').prop("disabled", false);
+            }
+            client.disconnect();
+        }
+        else {
+            $('.errorPayment').css('display', 'none');
+            $('.errorWallet').css('display', 'block');
+            $('.successPayment').css('display', 'none');
+            $('.waitingPayment').css('display', 'none');
+            $('.approveEscrowBtn').prop("disabled", false);
+            $('.rejectEscrowBtn').prop("disabled", false);
+        }
+
+    }
+    catch (err) {
+        $('.errorPayment').css('display', 'block');
+        $('.errorWallet').css('display', 'none');
+        $('.successPayment').css('display', 'none');
+        $('.waitingPayment').css('display', 'none');
+        $('.approveEscrowBtn').prop("disabled", false);
+        $('.rejectEscrowBtn').prop("disabled", false);
+    }
+}
+
+async function cashMoneyFromEscrow(originAddress, seed, ownerEscrow, offerSequence) {
+    $('.errorPayment').css('display', 'none');
+    $('.errorWallet').css('display', 'none');
+    $('.successPayment').css('display', 'none');
+    $('.waitingPayment').css('display', 'block');
+    $('.btnRedeem').prop("disabled", true);
+    try {
+        const originWallet = xrpl.Wallet.fromSeed(seed);
+        if (originWallet == null || originWallet.address != originAddress) {
+            $('.errorPayment').css('display', 'none');
+            $('.errorWallet').css('display', 'block');
+            $('.successPayment').css('display', 'none');
+            $('.waitingPayment').css('display', 'none');
+            $('.btnRedeem').prop("disabled", false);
+        }
+        else {
+            $('.errorPayment').css('display', 'none');
+            $('.errorWallet').css('display', 'none');
+            $('.successPayment').css('display', 'none');
+            $('.waitingPayment').css('display', 'block');
+            $('.btnRedeem').prop("disabled", false);
+            const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233/");
+            await client.connect()
+            const prepared = await client.autofill({
+                "TransactionType": "EscrowFinish",
+                "Account": originWallet.address,
+                "Owner": ownerEscrow,
+                "OfferSequence": offerSequence
+            });
+            const signed = originWallet.sign(prepared);
+            const tx = await client.submitAndWait(signed.tx_blob);
+            console.log(tx);
+            if (tx.result != null && tx.result.meta != null && tx.result.meta.TransactionResult != null
+                && tx.result.meta.TransactionResult == "tesSUCCESS" && tx.result.validated == true) {
+                $('#successfulPayment').val(true);
+                $('.errorPayment').css('display', 'none');
+                $('.errorWallet').css('display', 'none');
+                $('.successPayment').css('display', 'block');
+                $('.waitingPayment').css('display', 'none');
+                //$('.btnRedeem').prop("disabled", false);
+                $('#cashPaymentForm').submit();
+            }
+            else {
+                $('#successfulPayment').val(false);
+                $('.errorPayment').css('display', 'block');
+                $('.errorWallet').css('display', 'none');
+                $('.successPayment').css('display', 'none');
+                $('.waitingPayment').css('display', 'none');
+                $('.btnRedeem').prop("disabled", false);
+            }
+
+
+            client.disconnect();
+        }
+    }
+    catch (err) {
+        $('.errorPayment').css('display', 'block');
+        $('.errorWallet').css('display', 'none');
+        $('.successPayment').css('display', 'none');
+        $('.waitingPayment').css('display', 'none');
+        $('.btnRedeem').prop("disabled", false);
+        console.error(err);
+    }
+}

@@ -33,8 +33,8 @@ namespace Banktive.Web.Controllers
                     WalletId = x.OriginWalletId, OriginAddress = x.Wallet.Alias,
                     IsSend = true
                 });
-            var myWalletAddresses = _db.Wallets.Include("WalletProvider").Where(x => x.UserId == User.Identity.Name).Select(x => x.Alias);
-            var filterTransferForWallets = _db.Payments.Where(x => myWalletAddresses.Any(y => y == x.Destination.Account) && x.PaymentStatusId == Constants.PaymentConfirmed).Select(x => new TransferDTO
+            var myWalletAddresses = _db.Wallets.Include("WalletProvider").Where(x => x.UserId == User.Identity.Name).Select(x => x.XRPLAddress);
+            var filterTransferForWallets = _db.Payments.Where(x => myWalletAddresses.Any(y => y == x.XRPLDestinationWallet) && x.PaymentStatusId == Constants.PaymentConfirmed).Select(x => new TransferDTO
             {
                 Amount = x.Amount,
                 AssetCode = x.Currency.Code,
