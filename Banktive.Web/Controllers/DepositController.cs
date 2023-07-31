@@ -24,7 +24,7 @@ namespace Banktive.Web.Controllers
         public IActionResult Index(long? wallet, int? month, int? year, int page = 1, int qty = 20)
         {
             IndexDepositViewModel model = new IndexDepositViewModel(_db, User.Identity.Name);
-            IEnumerable<DepositDTO> deposits = _db.Deposits.Include(x => x.Wallet).Include(x => x.Currency).Where(x => x.UserId == User.Identity.Name && (x.DepositStatusId == Constants.EscrowConfirmed))
+            IEnumerable<DepositDTO> deposits = _db.Deposits.Include(x => x.Wallet).Include(x => x.Currency).Where(x => x.UserId == User.Identity.Name && (x.DepositStatusId == Constants.EscrowConfirmed || x.DepositStatusId == Constants.EscrowCashed || x.DepositStatusId == Constants.EscrowExpired))
                 .Select(x => new DepositDTO
                 {
                     Amount = x.Amount,
@@ -36,10 +36,11 @@ namespace Banktive.Web.Controllers
                     Wallet = x.Wallet.Name,
                     WalletId = x.OriginWalletId,
                     OriginAddress = x.Wallet.Alias,
-                    IsSend = true
+                    IsSend = true,
+                    DateToCash = x.DateToCash
                 });
             var myWalletAddresses = _db.Wallets.Include("WalletProvider").Where(x => x.UserId == User.Identity.Name).Select(x => x.XRPLAddress);
-            var filterDepositsForWallets = _db.Deposits.Where(x => myWalletAddresses.Any(y => y == x.XRPLDestinationWallet) && x.DepositStatusId == Constants.EscrowConfirmed).Select(x => new DepositDTO
+            var filterDepositsForWallets = _db.Deposits.Where(x => myWalletAddresses.Any(y => y == x.XRPLDestinationWallet) && x.DepositStatusId == Constants.EscrowConfirmed || x.DepositStatusId == Constants.EscrowCashed || x.DepositStatusId == Constants.EscrowExpired).Select(x => new DepositDTO
             {
                 Amount = x.Amount,
                 AssetCode = x.Currency.Code,
@@ -50,7 +51,8 @@ namespace Banktive.Web.Controllers
                 Wallet = x.Wallet.Name,
                 WalletId = x.OriginWalletId,
                 OriginAddress = x.Wallet.Alias,
-                IsSend = false
+                IsSend = false,
+                DateToCash = x.DateToCash
             });
             deposits = deposits.Concat(filterDepositsForWallets);
             if (wallet.HasValue)
@@ -92,9 +94,17 @@ namespace Banktive.Web.Controllers
         [HttpPost]
         public IActionResult CreateTimeDeposit(CreateTimeDepositFormModel Form)
         {
+            CreateTimeDepositViewModel model = new CreateTimeDepositViewModel(_db, Form.OriginWalletId, User.Identity.Name);
+            if (Form.DateToCash.HasValue)
+            {
+                if (Form.DateToCash.Value.Date <= DateTime.UtcNow.Date)
+                {
+                    ModelState.AddModelError("Form.DateToCash", "The date must be in the future (from tomorrow).");
+                }
+            }
             if(!ModelState.IsValid)
             {
-                CreateTimeDepositViewModel model = new CreateTimeDepositViewModel(_db, Form.OriginWalletId, User.Identity.Name);
+                
                 model.Form = Form;
                 return View(model);
             }
@@ -177,12 +187,17 @@ namespace Banktive.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CashTimeDeposit(Guid id)
+        public async Task<IActionResult> CashTimeDeposit(Guid id, long idWalletToCash)
         {
             Deposit deposit = _db.Deposits.SingleOrDefault(x => x.Id == id);
+            Wallet walletToCash = _db.Wallets.SingleOrDefault(x => x.Id == idWalletToCash);
+            if (walletToCash == null || walletToCash.UserId != User.Identity.Name)
+            {
+                return RedirectToAction("Index");
+            }
 
-            XRPLCreateEscrowResult resultDeposit = await _XRPLService.FinishEscrow("wss://s.altnet.rippletest.net:51233", 
-                deposit.Wallet.XRPLAddress, deposit.Wallet.XRPLSeed, (uint)deposit.XRPLSequence.Value);
+            XRPLCreateEscrowResult resultDeposit = await _XRPLService.FinishEscrow("wss://s.altnet.rippletest.net:51233",
+                walletToCash.XRPLAddress, walletToCash.XRPLSeed, (uint)deposit.XRPLSequence.Value);
             if(resultDeposit != null && resultDeposit.Successful)
             {
                 Payment payment = new Payment

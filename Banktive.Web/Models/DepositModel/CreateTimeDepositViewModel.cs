@@ -14,6 +14,7 @@ namespace Banktive.Web.Models.DepositModel
             Wallet = db.Wallets.SingleOrDefault(x => x.Id == id);
             Destinations = db.Destinations.Where(x => x.UserId == username).OrderBy(x => x.Name)
                 .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() });
+            Form = new CreateTimeDepositFormModel {  OriginWalletId = id };
         }
     }
 }

@@ -22,5 +22,6 @@
         public string? Wallet { get; set; }
 
         public bool IsSend { get; set; }
+        public DateTime? DateToCash { get; set; }
     }
 }
