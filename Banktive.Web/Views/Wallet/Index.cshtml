@@ -17,6 +17,20 @@
 <br />
 
 <div class="row">
+    <div class="col-3">
+        <br/>
+    </div>
+    <div class="col-6">
+        @Html.ActionLink("Create new wallet", "Create","Wallet",null,new {@class="btn btn-info"})
+    </div>
+    <div class="col-3">
+        <br/>
+    </div>
+</div>
+<br />
+
+
+<div class="row">
     @if (Model.Wallets.Any())
     {
         foreach (var address in Model.Wallets)

@@ -25,6 +25,21 @@
 
 @if(Model.PendingAccount != null)
 {
+
+    <div class="row">
+        <div class="col-12">
+            <h4>Pending charge</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-5">
+            Final date to pay: <b>@Model.PendingAccount.DueDate.ToLocalTime()</b>
+        </div>
+        <div class="col-3">
+            Amount: @Model.PendingAccount.Amount (@Model.PendingAccount.Currency.Name)
+        </div>
+    </div>
+
     @using(Html.BeginForm())
     {
         @Html.HiddenFor(x => x.Form.SubscriptionId)

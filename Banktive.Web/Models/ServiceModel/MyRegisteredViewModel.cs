@@ -9,7 +9,7 @@ namespace Banktive.Web.Models.ServiceModel
 
         public MyRegisteredViewModel(ApplicationDbContext db, string? username)
         {
-            Services = db.Services.Include(x => x.ServiceType).Where(x => x.UserId == username).OrderBy(x => x.Name);
+            Services = db.Services.Include(x => x.ServiceType).Include(x => x.Wallet).Where(x => x.UserId == username).OrderBy(x => x.Name);
         }
     }
 }

@@ -18,8 +18,8 @@ namespace Banktive.Web.Models.ServiceModel
             Form = new CheckSubscriptionFormModel { SubscriptionId = id };
             Wallets = db.Wallets.Where(x => x.UserId == userName)
                 .OrderBy(x => x.Name).Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() });
-            PendingAccount = db.ServiceAccountDetails.Include(x => x.ServiceAccount)
-                .ThenInclude(x => x.Service).Where(x => x.ServiceAccount.ServiceId == Subscription.ServiceId && x.ServiceAccount.CustomerId == Subscription.CustomerId 
+            PendingAccount = db.ServiceAccountDetails.Include(x => x.Currency).Include(x => x.ServiceAccount)
+                .ThenInclude(x => x.Service).ThenInclude(x => x.Wallet).Where(x => x.ServiceAccount.ServiceId == Subscription.ServiceId && x.ServiceAccount.CustomerId == Subscription.CustomerId 
                 && x.ServiceAccount.Service.ServiceTypeId == Subscription.ServiceTypeId && x.DueDate >= DateTime.UtcNow && x.Paid == false)
                 .OrderBy(x=> x.DueDate).FirstOrDefault();
         }

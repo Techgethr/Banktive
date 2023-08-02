@@ -26,6 +26,7 @@
 @using(Html.BeginForm())
 {
     @Html.HiddenFor(x => x.Form.Id)
+
     <div class="row">
         <div class="col-3">
             @Html.LabelFor(x => x.Form.Name)
@@ -43,17 +44,12 @@
     <br />
     <div class="row">
         <div class="col-3">
-            @Html.LabelFor(x => x.Form.Account)
+            Account
         </div>
         <div class="col-6">
-            @Html.TextBoxFor(x => x.Form.Account, new { placeholder="12784534 or rSDgd.... or username"}) <br />
-            @Html.ValidationMessageFor(x => x.Form.Account)
+            <b>@Model.Destination.Account</b>
         </div>
-        <div class="col-3">
-            <div class="alert alert-info">
-                Enter the number or name of the account of your destination in Banktive, or you can enter an address in the XRPL network.
-            </div>
-        </div>
+        
     </div>
     <br />
     <div class="row">
@@ -76,29 +72,32 @@
             <br />
         </div>
         <div class="col-6">
-            <input type="submit" value="Create" class="btn btn-success" />
+            <input type="submit" value="Update" class="btn btn-success" />
         </div>
     </div>
     <br />
 }
 
-<br /><br />
-<div class="row">
-    @using(Html.BeginForm("Delete","Destination"))
-    {
-        <input type="hidden" value="@Model.Destination.Id" name="id" />
+@if(!Model.ExistPayments)
+{
+    <br /><br />
+    <div class="row">
+        @using(Html.BeginForm("Delete","Destination"))
+        {
+            <input type="hidden" value="@Model.Destination.Id" name="id" />
     
-        <div class="col-3">
-            <h4>Delete</h4>
-        </div>
-        <div class="col-6">
-            <div class="alert alert-danger">
-                This action is irreversible. Transactions made to this destination are maintained and will not be affected.
+            <div class="col-3">
+                <h4>Delete</h4>
             </div>
-        </div>
-        <div class="col-3">
-            <input type="submit" value="Create" class="btn btn-danger" />
-        </div>
-    }
-</div>
-<br />
+            <div class="col-6">
+                <div class="alert alert-danger">
+                    This action is irreversible. Transactions made to this destination are maintained and will not be affected.
+                </div>
+            </div>
+            <div class="col-3">
+                <input type="submit" value="Delete" class="btn btn-danger" />
+            </div>
+        }
+    </div>
+    <br />
+}

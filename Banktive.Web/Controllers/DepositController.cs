@@ -39,7 +39,7 @@ namespace Banktive.Web.Controllers
                     IsSend = true,
                     DateToCash = x.DateToCash
                 });
-            var myWalletAddresses = _db.Wallets.Include("WalletProvider").Where(x => x.UserId == User.Identity.Name).Select(x => x.XRPLAddress);
+            var myWalletAddresses = _db.Wallets.Where(x => x.UserId == User.Identity.Name).Select(x => x.XRPLAddress);
             var filterDepositsForWallets = _db.Deposits.Where(x => myWalletAddresses.Any(y => y == x.XRPLDestinationWallet) && x.DepositStatusId == Constants.EscrowConfirmed || x.DepositStatusId == Constants.EscrowCashed || x.DepositStatusId == Constants.EscrowExpired).Select(x => new DepositDTO
             {
                 Amount = x.Amount,

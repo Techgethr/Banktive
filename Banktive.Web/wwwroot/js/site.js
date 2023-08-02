@@ -26,7 +26,7 @@ async function generateFundAddress() {
     if (my_wallet != null) {
         $('#Form_XRPLAddress').val(my_wallet.address);
         $('#Form_XRPLSeed').val(my_wallet.seed);
-        $('#createWalletBtn').prop('disabled', 'false');
+        $('#createWalletBtn').removeAttr("disabled");
     }
     
     client.disconnect();

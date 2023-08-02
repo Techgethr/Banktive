@@ -1,4 +1,5 @@
 ﻿using Banktive.Web.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Banktive.Web.Models.ServiceModel
 {
@@ -8,7 +9,7 @@ namespace Banktive.Web.Models.ServiceModel
 
         public MyServiceViewModel(ApplicationDbContext db, long id)
         {
-            Service = db.Services.SingleOrDefault(x => x.Id == id);
+            Service = db.Services.Include(x => x.ServiceType).Include(x => x.Wallet).SingleOrDefault(x => x.Id == id);
         }
     }
 }

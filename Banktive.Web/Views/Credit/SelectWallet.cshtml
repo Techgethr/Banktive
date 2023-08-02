@@ -36,8 +36,8 @@
                     }
                     else
                     {
-                        <span>Total amount: <strong> @creditWallet.TotalAmount @address.Currency.Name</strong></span>
-                        <span>Used amount: <strong> @creditWallet.UsedAmount @address.Currency.Name</strong></span>
+                        <span>Total amount: <strong> @creditWallet.TotalAmount @address.Currency.Name</strong></span> <br />
+                        <span>Used amount: <strong> @creditWallet.UsedAmount @address.Currency.Name</strong></span><br />
                         <span>Available amount: <strong> @(creditWallet.TotalAmount - creditWallet.UsedAmount) @address.Currency.Name</strong></span>
                     }
                         
@@ -50,14 +50,22 @@
                    
                     @if(creditWallet == null || !creditWallet.Enabled)
                     {
-                        <li><a href="@Url.Action("EnableWallet","Credit", new { id = address.Id })" class="btn btn-info loadingButton">Enable</a></li>
+                        @using(Html.BeginForm("EnableWallet","Credit",FormMethod.Post))
+                        {
+                            <input type="hidden" name="id" value="@address.Id" />
+                            <li><input type="submit" value="Enable" class="btn btn-info loadingButton" /></li>
+                        }
                     }
                     else
                     {
-                        <li><a href="@Url.Action("PayWithCheck","Payment", new { id = address.Id })" class="btn btn-info loadingButton">Select</a></li>
+                        <li><a href="@Url.Action("PayWithCheck","Credit", new { id = address.Id })" class="btn btn-info loadingButton">Select</a></li>
                         if(creditWallet.UsedAmount == 0)
                         {
-                            <li><a href="@Url.Action("EnableWallet","Payment", new { id = address.Id })" class="btn btn-warning loadingButton">Disable</a></li>
+                            @using(Html.BeginForm("EnableWallet","Credit",FormMethod.Post))
+                            {
+                                <input type="hidden" name="id" value="@address.Id" />
+                                <li><input type="submit" value="Disable" class="btn btn-info loadingButton" /></li>
+                            }
                         }
                         else
                         {

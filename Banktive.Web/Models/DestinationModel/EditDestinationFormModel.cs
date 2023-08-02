@@ -13,7 +13,7 @@ namespace Banktive.Web.Models.DestinationModel
         [Required]
         public string? Email { get; set; }
 
-        [Required]
-        public string? Account { get; set; }
+        //[Required]
+        //public string? Account { get; set; }
     }
 }

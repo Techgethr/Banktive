@@ -35,7 +35,7 @@ namespace Banktive.Web.Controllers
                     OriginAddress = x.Wallet.Alias,
                     IsSend = true, DateToCash = x.DateToCash
                 });
-            var myWalletAddresses = _db.Wallets.Include("WalletProvider").Where(x => x.UserId == User.Identity.Name).Select(x => x.XRPLAddress);
+            var myWalletAddresses = _db.Wallets.Where(x => x.UserId == User.Identity.Name).Select(x => x.XRPLAddress);
             var filterTransferForWallets = _db.Checks.Where(x => myWalletAddresses.Any(y => y == x.XRPLDestinationWallet) && (x.CheckStatusId == Constants.CheckConfirmed || x.CheckStatusId == Constants.CheckCashed)).Select(x => new CreditDTO
             {
                 Amount = x.Amount,
@@ -189,11 +189,6 @@ namespace Banktive.Web.Controllers
             {
                 return RedirectToAction("Index");
             }
-            if (!ModelState.IsValid)
-            {
-                model.Form = Form;
-                return View(model);
-            }
             Check check = _db.Checks.Include(x => x.Currency).Include(x => x.Destination)
                 .Include(x => x.CheckStatus).SingleOrDefault(x => x.Id == Form.Id);
 
@@ -204,6 +199,13 @@ namespace Banktive.Web.Controllers
 
                 return RedirectToAction("Index");
             }
+
+            if (!ModelState.IsValid)
+            {
+                model.Form = Form;
+                return View(model);
+            }
+            
             check.CheckStatusId = Constants.CheckConfirmed;
             check.CheckXRPLId = Form.CheckXRPLId;
             check.Fee = 0;

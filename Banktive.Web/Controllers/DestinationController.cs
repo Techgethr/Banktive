@@ -95,7 +95,7 @@ namespace Banktive.Web.Controllers
             destination.Name = Form.Name;
             destination.LastUpdatedAt = DateTime.UtcNow;
             destination.Email = Form.Email;
-            destination.Account = Form.Account;
+            //destination.Account = Form.Account;
 
             _db.SaveChanges();
             return RedirectToAction("Index");

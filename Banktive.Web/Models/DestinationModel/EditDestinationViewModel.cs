@@ -6,6 +6,7 @@ namespace Banktive.Web.Models.DestinationModel
     {
         public Destination Destination { get; set; }
         public EditDestinationFormModel Form { get; set; }
+        public bool ExistPayments { get; set; }
 
         public EditDestinationViewModel(ApplicationDbContext db, Guid id)
         {
@@ -14,13 +15,14 @@ namespace Banktive.Web.Models.DestinationModel
             {
                 Form = new EditDestinationFormModel
                 {
-                    Account = Destination.Account,
+                    //Account = Destination.Account,
                     Email = Destination.Email,
                     Id = id,
                     Name = Destination.Name
                 };
+                
             }
-            
+            ExistPayments = db.Payments.Any(x => x.DestinationId == id);
         }
     }
 }

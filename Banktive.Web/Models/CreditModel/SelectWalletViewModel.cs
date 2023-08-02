@@ -1,4 +1,5 @@
 ﻿using Banktive.Web.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Banktive.Web.Models.CreditModel
 {
@@ -9,8 +10,8 @@ namespace Banktive.Web.Models.CreditModel
 
         public SelectWalletViewModel(ApplicationDbContext db, string? name)
         {
-            Wallets = db.Wallets.Where(x => x.UserId == name).OrderBy(x => x.Name);
-            CreditWallets = db.CreditWallets.Where(x => x.UserId == name);
+            Wallets = db.Wallets.Include(x => x.Currency).Where(x => x.UserId == name).OrderBy(x => x.Name);
+            CreditWallets = db.CreditWallets.Where(x => x.UserId == name).ToList();
         }
     }
 }

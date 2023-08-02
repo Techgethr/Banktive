@@ -50,7 +50,7 @@ namespace Banktive.Web.Controllers
             if (!ModelState.IsValid)
             {
                 model.Form = Form;
-                return View(Form);
+                return View(model);
             }
 
             Wallet wallet = new Wallet

@@ -43,7 +43,7 @@
             <br />
         </div>
         <div class="form-group col-md-5">
-            <input type="button" value="Cancel" class="btn btn-warning loadingButton" name="Form.Cancelled" /> &emsp;
+            <input type="submit" value="Cancel" class="btn btn-warning loadingButton" name="Form.Cancelled" /> &emsp;
             <input type="button" class="btn btn-primary loadingButton approveCheckBtn" value="Approve payment with credit" />
         </div>
     </div>
@@ -72,7 +72,7 @@
         $(function () {
             $('.approveCheckBtn').click(async function () {
                 var seedCode = $('#seedCode').val();
-                await sendDeferredPayment(@Model.Check.Wallet.XRPLSeed,'@Model.Check.Currency.Code',@(Model.Check.Amount.ToString("N2").Replace(",",".")),'@Model.Check.XRPLDestinationWallet')
+                await sendDeferredPayment('@Model.Check.Wallet.XRPLSeed','@Model.Check.Currency.Code',@(Model.Check.Amount.ToString("N2").Replace(",",".")),'@Model.Check.XRPLDestinationWallet')
             });
         });
     </script>

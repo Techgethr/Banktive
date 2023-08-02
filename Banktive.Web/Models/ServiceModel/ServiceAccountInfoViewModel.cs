@@ -1,4 +1,5 @@
 ﻿using Banktive.Web.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Banktive.Web.Models.ServiceModel
 {
@@ -12,7 +13,7 @@ namespace Banktive.Web.Models.ServiceModel
         {
             Form = new ServiceAccountInfoFormModel { ServiceAccountId = id };
             ServiceAccount = db.ServiceAccounts.SingleOrDefault(x => x.Id == id);
-            ServiceAccountDetails = db.ServiceAccountDetails.Where(x => x.ServiceAccountId == id).OrderByDescending(x => x.DueDate);
+            ServiceAccountDetails = db.ServiceAccountDetails.Include(x => x.Currency).Where(x => x.ServiceAccountId == id).OrderByDescending(x => x.DueDate);
         }
     }
 }

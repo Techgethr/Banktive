@@ -10,9 +10,6 @@ namespace Banktive.Web.Models.CreditModel
         [Required]
         public decimal? Amount { get; set; }
 
-        [Required]
-        [MaxLength(200), MinLength(1)]
-        public string? XRPLDestinationWallet { get; set; }
 
         public Guid? DestinationId { get; set; }
 

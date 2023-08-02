@@ -10,7 +10,7 @@ namespace Banktive.Web.Models.CreditModel
         public ViewCheckViewModel(ApplicationDbContext db, Guid id)
         {
             Check = db.Checks.Include(x => x.Currency).Include(x => x.Destination)
-                .Include(x => x.CheckStatus).SingleOrDefault(x => x.Id == id);
+                .Include(x => x.CheckStatus).Include(x => x.Wallet).SingleOrDefault(x => x.Id == id);
             WalletForCash = db.Wallets.SingleOrDefault(x => x.XRPLAddress == Check.XRPLDestinationWallet);
         }
     }

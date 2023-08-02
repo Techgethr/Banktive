@@ -10,7 +10,7 @@ namespace Banktive.Web.Models.TransferModel
         public DetailTransferViewModel(ApplicationDbContext db, Guid id)
         {
             Payment = db.Payments.Include(x => x.Currency).Include(x => x.Destination)
-                .Include(x => x.PaymentStatus).Include(x => x.PaymentType).SingleOrDefault(x => x.Id == id);
+                .Include(x => x.PaymentStatus).Include(x => x.PaymentType).Include(x => x.Wallet).SingleOrDefault(x => x.Id == id);
         }
     }
 }

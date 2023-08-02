@@ -196,7 +196,8 @@ namespace Banktive.Web.Controllers
             }
 
             Wallet walletForPayment = _db.Wallets.SingleOrDefault(x => x.Id == Form.WalletId.Value);
-
+            string xrplAddress = model.PendingAccount.ServiceAccount.Service.Wallet.XRPLAddress;
+            string serviceName = model.PendingAccount.ServiceAccount.Service.Name;
             Payment payment = new Payment
             {
                 Amount = model.PendingAccount.Amount,
@@ -205,10 +206,11 @@ namespace Banktive.Web.Controllers
                 CreatedAt = DateTime.UtcNow,
                 CurrencyId = Constants.Currency_XRP,
                 //DestinationId = model.PendingAccount.ServiceAccount.Service.Wallet.XRPLAddress,
-                XRPLDestinationWallet = model.PendingAccount.ServiceAccount.Service.Wallet.XRPLAddress,
+                XRPLDestinationWallet = xrplAddress,
                 Id = Guid.NewGuid(),
                 OriginWalletId = Form.WalletId.Value,
-                UserId = User.Identity.Name
+                UserId = User.Identity.Name,
+                Comments = "Service payment for "+ serviceName
             };
 
 

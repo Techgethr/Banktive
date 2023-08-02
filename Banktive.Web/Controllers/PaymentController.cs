@@ -93,20 +93,20 @@ namespace Banktive.Web.Controllers
             {
                 return RedirectToAction("Index");
             }
-            if (!string.IsNullOrEmpty(Form.Password))
-            {
-                var passwordValidator = new PasswordValidator<IdentityUser>();
-                var result = await passwordValidator.ValidateAsync(_userManager, new IdentityUser(User.Identity.Name), Form.Password);
+            //if (!string.IsNullOrEmpty(Form.Password))
+            //{
+            //    var passwordValidator = new PasswordValidator<IdentityUser>();
+            //    var result = await passwordValidator.ValidateAsync(_userManager, new IdentityUser(User.Identity.Name), Form.Password);
 
-                if (result.Succeeded)
-                {
-                    // Valid Password
-                }
-                else
-                {
-                    ModelState.AddModelError("Form.Password", "The password is not correct.");
-                }
-            }
+            //    if (result.Succeeded)
+            //    {
+            //        // Valid Password
+            //    }
+            //    else
+            //    {
+            //        ModelState.AddModelError("Form.Password", "The password is not correct.");
+            //    }
+            //}
             if (!ModelState.IsValid)
             {
                 

@@ -26,8 +26,7 @@
 {
     @Html.HiddenFor(x => x.Form.XRPLAddress)
     @Html.HiddenFor(x => x.Form.XRPLSeed)
-    <input type="hidden" name="Form_CurrencyId" value="@Constants.Currency_XRP" />
-    @Html.HiddenFor(x => x.Form.CurrencyId, 1)
+    <input type="hidden" name="Form.CurrencyId" value="@Constants.Currency_XRP" />
     <div class="row">
         <div class="col-md-3">
             @Html.LabelFor(x => x.Form.Name)
