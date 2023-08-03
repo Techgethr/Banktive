@@ -189,7 +189,7 @@ namespace Banktive.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CashTimeDeposit(Guid id, long idWalletToCash)
         {
-            Deposit deposit = _db.Deposits.SingleOrDefault(x => x.Id == id);
+            Deposit deposit = _db.Deposits.Include(x => x.Wallet).SingleOrDefault(x => x.Id == id);
             Wallet walletToCash = _db.Wallets.SingleOrDefault(x => x.Id == idWalletToCash);
             if (walletToCash == null || walletToCash.UserId != User.Identity.Name)
             {
@@ -197,7 +197,7 @@ namespace Banktive.Web.Controllers
             }
 
             XRPLCreateEscrowResult resultDeposit = await _XRPLService.FinishEscrow("wss://s.altnet.rippletest.net:51233",
-                walletToCash.XRPLAddress, walletToCash.XRPLSeed, (uint)deposit.XRPLSequence.Value);
+                walletToCash.XRPLAddress, walletToCash.XRPLSeed, deposit.Wallet.XRPLAddress, (uint)deposit.XRPLSequence.Value);
             if(resultDeposit != null && resultDeposit.Successful)
             {
                 Payment payment = new Payment
@@ -212,7 +212,7 @@ namespace Banktive.Web.Controllers
                     XRPLDestinationWallet = deposit.XRPLDestinationWallet,
                     Id = Guid.NewGuid(),
                     OriginWalletId = deposit.OriginWalletId,
-                    UserId = User.Identity.Name,
+                    UserId = deposit.UserId,
                     ConfirmationAt = DateTime.UtcNow,
                     Fee = resultDeposit.FeeAmount
                 };
@@ -229,10 +229,10 @@ namespace Banktive.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CancelTimeDeposit(Guid id)
         {
-            Deposit deposit = _db.Deposits.SingleOrDefault(x => x.Id == id);
+            Deposit deposit = _db.Deposits.Include(x => x.Wallet).SingleOrDefault(x => x.Id == id);
 
             XRPLCreateEscrowResult resultDeposit = await _XRPLService.CancelEscrow("wss://s.altnet.rippletest.net:51233",
-                deposit.Wallet.XRPLAddress, deposit.Wallet.XRPLSeed, (uint)deposit.XRPLSequence.Value);
+                deposit.Wallet.XRPLAddress, deposit.Wallet.XRPLSeed, deposit.Wallet.XRPLAddress, (uint)deposit.XRPLSequence.Value);
             if (resultDeposit != null && resultDeposit.Successful)
             {
 

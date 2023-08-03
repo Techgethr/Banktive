@@ -129,22 +129,22 @@ namespace Banktive.Web.Services
                 long unitDate = (long)(dateToPay - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
 
                 uint release_date_ripple = (uint)(unitDate - 946684800);
-
-                PaymentTransaction paymentTransaction = new PaymentTransaction
+                EscrowCreateTransaction escrowCreateTransaction = new EscrowCreateTransaction
                 {
                     TransactionType = TransactionType.EscrowCreate,
                     Destination = addressTo,
                     Amount = new Currency { ValueAsXrp = amount },
                     Account = addressFrom,
-                    date = release_date_ripple
-                    //Sequence = accountInfo.AccountData.Sequence
+                    FinishAfter = dateToPay,
+                    Sequence = accountInfo.AccountData.Sequence
                 };
-                escrowResult.AmountDelivered = paymentTransaction.Amount.ValueAsXrp;
-                escrowResult.AmountSent = paymentTransaction.Amount.ValueAsXrp;
-                escrowResult.OriginalAmount = paymentTransaction.Amount.ValueAsXrp;
+
+                escrowResult.AmountDelivered = escrowCreateTransaction.Amount.ValueAsXrp;
+                escrowResult.AmountSent = escrowCreateTransaction.Amount.ValueAsXrp;
+                escrowResult.OriginalAmount = escrowCreateTransaction.Amount.ValueAsXrp;
 
                 TxSigner txSigner = TxSigner.FromSecret(seedFrom);
-                var jsonSigned = txSigner.SignJson(Newtonsoft.Json.Linq.JObject.Parse(paymentTransaction.ToJson()));
+                var jsonSigned = txSigner.SignJson(Newtonsoft.Json.Linq.JObject.Parse(escrowCreateTransaction.ToJson()));
                 string txBlob = jsonSigned.TxBlob;
                 SubmitBlobRequest requestFund = new SubmitBlobRequest();
                 requestFund.TransactionBlob = txBlob;
@@ -172,7 +172,7 @@ namespace Banktive.Web.Services
             return escrowResult;
         }
 
-        public async Task<XRPLCreateEscrowResult> FinishEscrow(string url, string addressFrom, string seedFrom, uint offerSequence)
+        public async Task<XRPLCreateEscrowResult> FinishEscrow(string url, string addressFrom, string seedFrom, string addressCreator, uint offerSequence)
         {
             XRPLCreateEscrowResult escrowResult = new XRPLCreateEscrowResult { Successful = false };
             try
@@ -182,21 +182,19 @@ namespace Banktive.Web.Services
                 AccountInfoRequest request = new AccountInfoRequest(addressFrom);
                 AccountInfo accountInfo = await _rippleClient.AccountInfo(request);
 
-
-                PaymentTransaction paymentTransaction = new PaymentTransaction
+                EscrowFinishTransaction escrowCreateTransaction = new EscrowFinishTransaction
                 {
-                    TransactionType = TransactionType.EscrowFinish,
-                    Destination = addressFrom,
+                    TransactionType = TransactionType.EscrowCreate,
                     Account = addressFrom,
-                    Sequence = offerSequence
-                    //Sequence = accountInfo.AccountData.Sequence
+                    Sequence = offerSequence, Owner = addressCreator
                 };
-                escrowResult.AmountDelivered = paymentTransaction.Amount.ValueAsXrp;
-                escrowResult.AmountSent = paymentTransaction.Amount.ValueAsXrp;
-                escrowResult.OriginalAmount = paymentTransaction.Amount.ValueAsXrp;
+
+                //escrowResult.AmountDelivered = escrowCreateTransaction..Amount.ValueAsXrp;
+                //escrowResult.AmountSent = escrowCreateTransaction.Amount.ValueAsXrp;
+                //escrowResult.OriginalAmount = escrowCreateTransaction.Amount.ValueAsXrp;
 
                 TxSigner txSigner = TxSigner.FromSecret(seedFrom);
-                var jsonSigned = txSigner.SignJson(Newtonsoft.Json.Linq.JObject.Parse(paymentTransaction.ToJson()));
+                var jsonSigned = txSigner.SignJson(Newtonsoft.Json.Linq.JObject.Parse(escrowCreateTransaction.ToJson()));
                 string txBlob = jsonSigned.TxBlob;
                 SubmitBlobRequest requestFund = new SubmitBlobRequest();
                 requestFund.TransactionBlob = txBlob;
@@ -224,7 +222,7 @@ namespace Banktive.Web.Services
             return escrowResult;
         }
 
-        public async Task<XRPLCreateEscrowResult> CancelEscrow(string url, string addressFrom, string seedFrom, uint offerSequence)
+        public async Task<XRPLCreateEscrowResult> CancelEscrow(string url, string addressFrom, string seedFrom, string addressCreator, uint offerSequence)
         {
             XRPLCreateEscrowResult escrowResult = new XRPLCreateEscrowResult { Successful = false };
             try
@@ -235,17 +233,17 @@ namespace Banktive.Web.Services
                 AccountInfo accountInfo = await _rippleClient.AccountInfo(request);
 
 
-                PaymentTransaction paymentTransaction = new PaymentTransaction
+                EscrowCancelTransaction paymentTransaction = new EscrowCancelTransaction
                 {
                     TransactionType = TransactionType.EscrowCancel,
-                    Destination = addressFrom,
                     Account = addressFrom,
-                    Sequence = offerSequence
+                    Sequence = offerSequence,
+                    Owner = addressCreator
                     //Sequence = accountInfo.AccountData.Sequence
                 };
-                escrowResult.AmountDelivered = paymentTransaction.Amount.ValueAsXrp;
-                escrowResult.AmountSent = paymentTransaction.Amount.ValueAsXrp;
-                escrowResult.OriginalAmount = paymentTransaction.Amount.ValueAsXrp;
+                //escrowResult.AmountDelivered = paymentTransaction.Amount.ValueAsXrp;
+                //escrowResult.AmountSent = paymentTransaction.Amount.ValueAsXrp;
+                //escrowResult.OriginalAmount = paymentTransaction.Amount.ValueAsXrp;
 
                 TxSigner txSigner = TxSigner.FromSecret(seedFrom);
                 var jsonSigned = txSigner.SignJson(Newtonsoft.Json.Linq.JObject.Parse(paymentTransaction.ToJson()));

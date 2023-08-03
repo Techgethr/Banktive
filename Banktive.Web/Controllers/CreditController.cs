@@ -233,6 +233,7 @@ namespace Banktive.Web.Controllers
         {
             Check check = _db.Checks.SingleOrDefault(x => x.Id ==id);
             check.DateToCash = DateTime.UtcNow;
+            check.CheckStatusId = Constants.CheckCashed;
 
             Payment payment = new Payment
             {
@@ -246,14 +247,14 @@ namespace Banktive.Web.Controllers
                 XRPLDestinationWallet = check.XRPLDestinationWallet,
                 Id = Guid.NewGuid(),
                 OriginWalletId = check.OriginWalletId,
-                UserId = User.Identity.Name, ConfirmationAt = DateTime.UtcNow, Fee = check.Fee
+                UserId = check.UserId, ConfirmationAt = DateTime.UtcNow, Fee = check.Fee
             };
 
             _db.Payments.Add(payment);
 
             CreditWallet creditWallet = _db.CreditWallets.SingleOrDefault(x => x.Id == check.OriginWalletId);
             creditWallet.UsedAmount -= check.Amount;
-
+            
             _db.SaveChanges();
             return RedirectToAction("ViewCheck", new { id });
         }
