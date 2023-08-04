@@ -184,9 +184,9 @@ namespace Banktive.Web.Services
 
                 EscrowFinishTransaction escrowCreateTransaction = new EscrowFinishTransaction
                 {
-                    TransactionType = TransactionType.EscrowCreate,
+                    TransactionType = TransactionType.EscrowFinish,
                     Account = addressFrom,
-                    Sequence = offerSequence, Owner = addressCreator
+                    OfferSequence = offerSequence, Owner = addressCreator, Sequence = accountInfo.AccountData.Sequence
                 };
 
                 //escrowResult.AmountDelivered = escrowCreateTransaction..Amount.ValueAsXrp;
@@ -237,8 +237,9 @@ namespace Banktive.Web.Services
                 {
                     TransactionType = TransactionType.EscrowCancel,
                     Account = addressFrom,
-                    Sequence = offerSequence,
-                    Owner = addressCreator
+                    Sequence = accountInfo.AccountData.Sequence,
+                    Owner = addressCreator,
+                    OfferSequence = offerSequence
                     //Sequence = accountInfo.AccountData.Sequence
                 };
                 //escrowResult.AmountDelivered = paymentTransaction.Amount.ValueAsXrp;
