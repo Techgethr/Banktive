@@ -44,7 +44,7 @@ The new version for Banktive (2.0) for the second phase of Ripple's CBDC hackath
 ## Technologies
 Banktive is built with:
 
-- **Microsoft .NET Core Framework**: For the backend and a large part of the front end. Using C# for much of the interaction with XRPL.
+- **Microsoft .NET Core Framework**: For the backend and a large part of the front end. Using C# for much of the interaction with XRPL (using external libraries and RPC calls).
 - **HTML, CSS, and Javascript**: For the front end and some aspects of XRPL that cannot be achieved in the backend.
 - **SQL Server**: For storage of data that does not go to the XRPL network, and also some details of each transaction in XRPL.
 - **XRPL**: For the interaction in Blockchain, for now in testnet.
